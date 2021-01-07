@@ -1,17 +1,36 @@
-import React from 'react';
-import ReactDOM from 'react-dom';
-import './index.css';
-import App from './App';
-import reportWebVitals from './reportWebVitals';
+import React from "react";
+import ReactDom from "react-dom";
+import SeasonDisplay from "./SeasonDisplay";
+import Spinner from "./Spinner";
 
-ReactDOM.render(
-  <React.StrictMode>
-    <App />
-  </React.StrictMode>,
-  document.getElementById('root')
-);
+class App extends React.Component {
+	// constructor(props) {
+	// 	super(props);
+	// 	this.state = { latitude: null, errorMessage: "" };
+	// }
+	state = { latitude: null, errorMessage: "" };
+	componentDidMount() {
+		window.navigator.geolocation.getCurrentPosition(
+			(position) => this.setState({ latitude: position.coords.latitude }),
+			(error) => this.setState({ errorMessage: error.message })
+		);
+	}
+	renderContent() {
+		if (this.state.errorMessage && !this.state.latitude) {
+			return <div> Error:{this.state.errorMessage}</div>;
+		} else if (!this.state.errorMessage && !this.state.latitude) {
+			return (
+				<div>
+					<Spinner message='Please Allow Location Request' />
+				</div>
+			);
+		} else {
+			return <SeasonDisplay lat={this.state.latitude} />;
+		}
+	}
+	render() {
+		return <div className='border red'>{this.renderContent()}</div>;
+	}
+}
 
-// If you want to start measuring performance in your app, pass a function
-// to log results (for example: reportWebVitals(console.log))
-// or send to an analytics endpoint. Learn more: https://bit.ly/CRA-vitals
-reportWebVitals();
+ReactDom.render(<App />, document.querySelector("#root"));
